@@ -43,13 +43,13 @@ export default async function Home() {
   }
 
   const pollenTypes = [
-    { name: 'alder', value: data.current.alder_pollen },
-    { name: 'birch', value: data.current.birch_pollen },
-    { name: 'grass', value: data.current.grass_pollen },
-    { name: 'mugwort', value: data.current.mugwort_pollen },
-    { name: 'olive', value: data.current.olive_pollen },
-    { name: 'ragweed', value: data.current.ragweed_pollen },
-  ];
+    { name: 'Alder', value: data.current.alder_pollen },
+    { name: 'Birch', value: data.current.birch_pollen },
+    { name: 'Grass', value: data.current.grass_pollen },
+    { name: 'Mugwort', value: data.current.mugwort_pollen },
+    { name: 'Olive', value: data.current.olive_pollen },
+    { name: 'Ragweed', value: data.current.ragweed_pollen },
+  ].sort((a, b) => (b.value || 0) - (a.value || 0));
 
   const maxCurrentLevel = Math.max(...pollenTypes.map(p => p.value));
 
