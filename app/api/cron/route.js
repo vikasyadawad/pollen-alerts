@@ -79,7 +79,7 @@ export async function GET(request) {
   }
 
   // 3. Link to Your Dashboard
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = 'https://pollen.humboldt-peacock.ts.net';
   message += `\n📊 [View Full Charts & Forecast](${appUrl})`;
 
   // Send to Telegram
