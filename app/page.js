@@ -3,6 +3,7 @@ import { getSymptoms } from '@/lib/db';
 import PollenChart from './PollenChart';
 import PollenParticles from './PollenParticles';
 import SymptomWidget from './SymptomWidget';
+import Heatmap from './Heatmap';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -116,6 +117,8 @@ export default async function Home() {
       <SymptomWidget todayDate={data.current.date} alreadyLogged={alreadyLogged} />
 
       <PollenChart data={[data.current, ...data.forecast]} symptoms={allSymptoms} />
+
+      <Heatmap symptoms={allSymptoms} />
 
       <h2 className="section-title">3-Day Forecast</h2>
       <div className="forecast-grid">
