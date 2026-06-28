@@ -1,14 +1,25 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default function PollenChart({ data }) {
-  // Format dates for X-axis
-  const chartData = data.map((day, index) => {
-    const dateObj = new Date(day.date);
+export default function PollenChart({ data, symptoms }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div className="card" style={{ height: '300px', marginBottom: '2rem' }}></div>;
+
+  const symptomMap = new Map((symptoms || []).map(s => [s.date, s.score]));
+
+  const chartData = data.map(d => {
+    const dateObj = new Date(d.date);
     return {
-      ...day,
-      displayDate: index === 0 ? 'Today' : new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(dateObj)
+      ...d,
+      displayDate: new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(dateObj),
+      symptom: symptomMap.get(d.date) || null
     };
   });
 
@@ -21,6 +32,7 @@ export default function PollenChart({ data }) {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
             <XAxis dataKey="displayDate" stroke="var(--axis-color)" tick={{fill: 'var(--axis-color)'}} axisLine={false} tickLine={false} />
             <YAxis stroke="var(--axis-color)" tick={{fill: 'var(--axis-color)'}} axisLine={false} tickLine={false} />
+            <YAxis yAxisId="right" orientation="right" domain={[0, 3]} stroke="var(--warning-color)" tick={{fill: 'var(--warning-color)'}} axisLine={false} tickLine={false} />
             <Tooltip 
               contentStyle={{ backgroundColor: 'var(--tooltip-bg)', border: '1px solid var(--tooltip-border)', borderRadius: '0.5rem', color: 'var(--text-color)' }}
               itemStyle={{ color: 'var(--text-color)' }}
@@ -30,8 +42,9 @@ export default function PollenChart({ data }) {
             <Line type="monotone" dataKey="birch_pollen" name="Birch" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
             <Line type="monotone" dataKey="grass_pollen" name="Grass" stroke="#f472b6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
             <Line type="monotone" dataKey="mugwort_pollen" name="Mugwort" stroke="#fbbf24" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-            <Line type="monotone" dataKey="olive_pollen" name="Olive" stroke="#a78bfa" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-            <Line type="monotone" dataKey="ragweed_pollen" name="Ragweed" stroke="#f87171" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="olive_pollen" name="Olive" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            <Line type="monotone" dataKey="ragweed_pollen" name="Ragweed" stroke="#ec4899" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            <Line yAxisId="right" type="step" dataKey="symptom" name="Symptoms (1-3)" stroke="var(--warning-color)" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 6 }} activeDot={{ r: 8 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

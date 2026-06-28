@@ -1,5 +1,8 @@
 import { fetchPollenData } from '@/lib/open-meteo';
+import { getSymptoms } from '@/lib/db';
 import PollenChart from './PollenChart';
+import PollenParticles from './PollenParticles';
+import SymptomWidget from './SymptomWidget';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -32,12 +35,27 @@ export default async function Home() {
     { name: 'ragweed', value: data.current.ragweed_pollen },
   ];
 
+  const maxCurrentLevel = Math.max(...pollenTypes.map(p => p.value));
+
   return (
-    <main>
-      <div className="header">
-        <h1 className="title">Berlin Pollen Levels</h1>
-        <p className="subtitle">Real-time alerts & forecast for 10315 Berlin</p>
-      </div>
+    <>
+      <PollenParticles severity={maxCurrentLevel} />
+      <main>
+        <div className="header">
+          <h1 className="title">Berlin Pollen Levels</h1>
+          <p className="subtitle">Real-time alerts & forecast for 10315 Berlin</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase' }}>Air Quality (AQI)</h3>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0.5rem 0' }}>{data.current.aqi}</div>
+          </div>
+          <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase' }}>Wind Speed</h3>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0.5rem 0' }}>{data.current.wind_speed}<span style={{fontSize: '1rem', fontWeight: 400}}>km/h</span></div>
+          </div>
+        </div>
 
       <h2 className="section-title">Today's Peak Levels</h2>
       <div className="pollen-grid">
@@ -58,7 +76,9 @@ export default async function Home() {
         })}
       </div>
 
-      <PollenChart data={[data.current, ...data.forecast]} />
+      <SymptomWidget todayDate={data.current.date} />
+
+      <PollenChart data={[data.current, ...data.forecast]} symptoms={getSymptoms()} />
 
       <h2 className="section-title">3-Day Forecast</h2>
       <div className="forecast-grid">
@@ -118,5 +138,6 @@ export default async function Home() {
         })}
       </div>
     </main>
+    </>
   );
 }

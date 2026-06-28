@@ -16,6 +16,10 @@ export const metadata = {
   description: "Daily pollen alerts and dashboard for Berlin",
 };
 
+export const viewport = {
+  themeColor: '#0f172a',
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
