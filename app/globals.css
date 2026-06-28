@@ -1,26 +1,279 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --accent-color: #10b981;
+  --accent-glow: rgba(16, 185, 129, 0.4);
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  
+  --axis-color: #94a3b8;
+  --tooltip-bg: #1e293b;
+  --tooltip-border: rgba(255, 255, 255, 0.1);
+  --detail-row-bg: rgba(255, 255, 255, 0.05);
+  --detail-row-text: #e2e8f0;
+  
+  --bg-gradient-1: rgba(15, 23, 42, 1);
+  --bg-gradient-2: rgba(16, 185, 129, 0.1);
+  --bg-gradient-3: rgba(15, 23, 42, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-border: rgba(0, 0, 0, 0.1);
+    --accent-glow: rgba(16, 185, 129, 0.2);
+    
+    --axis-color: #64748b;
+    --tooltip-bg: #ffffff;
+    --tooltip-border: rgba(0, 0, 0, 0.1);
+    --detail-row-bg: rgba(0, 0, 0, 0.05);
+    --detail-row-text: #334155;
+    
+    --bg-gradient-1: rgba(248, 250, 252, 1);
+    --bg-gradient-2: rgba(16, 185, 129, 0.1);
+    --bg-gradient-3: rgba(248, 250, 252, 1);
   }
 }
 
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-geist-sans), sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: 
+    radial-gradient(at 0% 0%, var(--bg-gradient-1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, var(--bg-gradient-2) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, var(--bg-gradient-3) 0, transparent 50%);
+  background-attachment: fixed;
+}
+
+main {
+  flex: 1;
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+  animation: fadeInDown 0.8s ease-out forwards;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #34d399, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+}
+
+.pollen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.pollen-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* Staggered animation delays for cards */
+.pollen-card:nth-child(1) { animation-delay: 0.1s; }
+.pollen-card:nth-child(2) { animation-delay: 0.2s; }
+.pollen-card:nth-child(3) { animation-delay: 0.3s; }
+.pollen-card:nth-child(4) { animation-delay: 0.4s; }
+.pollen-card:nth-child(5) { animation-delay: 0.5s; }
+.pollen-card:nth-child(6) { animation-delay: 0.6s; }
+
+.pollen-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.pollen-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: var(--font-geist-mono), monospace;
+  margin-bottom: 0.5rem;
+}
+
+.pollen-unit {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-low {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.status-medium {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.status-high {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.forecast-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.forecast-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.forecast-date {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.forecast-day-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.forecast-day-date {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.forecast-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--card-border);
+}
+
+.forecast-label {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.forecast-details {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.forecast-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--detail-row-text);
+  background: var(--detail-row-bg);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  align-items: center;
+}
+
+.font-mono {
+  font-family: var(--font-geist-mono), monospace;
+  font-weight: 600;
+  color: #38bdf8;
 }
