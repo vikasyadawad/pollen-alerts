@@ -53,6 +53,9 @@ export default async function Home() {
 
   const maxCurrentLevel = Math.max(...pollenTypes.map(p => p.value));
 
+  const allSymptoms = getSymptoms();
+  const alreadyLogged = allSymptoms.some(s => s.date === data.current.date);
+
   return (
     <>
       <PollenParticles severity={maxCurrentLevel} />
@@ -110,9 +113,9 @@ export default async function Home() {
         })}
       </div>
 
-      <SymptomWidget todayDate={data.current.date} />
+      <SymptomWidget todayDate={data.current.date} alreadyLogged={alreadyLogged} />
 
-      <PollenChart data={[data.current, ...data.forecast]} symptoms={getSymptoms()} />
+      <PollenChart data={[data.current, ...data.forecast]} symptoms={allSymptoms} />
 
       <h2 className="section-title">3-Day Forecast</h2>
       <div className="forecast-grid">

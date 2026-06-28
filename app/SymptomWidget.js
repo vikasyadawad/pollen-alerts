@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 
-export default function SymptomWidget({ todayDate }) {
-  const [logged, setLogged] = useState(false);
+export default function SymptomWidget({ todayDate, alreadyLogged }) {
+  const [logged, setLogged] = useState(alreadyLogged);
 
   const logSymptom = async (score) => {
     setLogged(true);
