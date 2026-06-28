@@ -34,8 +34,8 @@ export default function Heatmap({ symptoms }) {
 
   // Custom colors for the heatmap blocks
   const theme = {
-    light: ['#ebedf0', '#9be9a8', '#f1c40f', '#e67e22', '#e74c3c'],
-    dark: ['#161b22', '#0e4429', '#f1c40f', '#e67e22', '#e74c3c'],
+    light: ['#e2e8f0', '#34d399', '#fbbf24', '#f97316', '#ef4444'], // Light gray, Green, Yellow, Orange, Red
+    dark: ['#1e293b', '#059669', '#d97706', '#ea580c', '#dc2626'],
   };
 
   const labels = {
@@ -59,7 +59,7 @@ export default function Heatmap({ symptoms }) {
           data={data} 
           theme={theme} 
           labels={labels}
-          colorScheme="dark"
+          colorScheme="light"
           blockSize={14}
           blockRadius={4}
           blockMargin={4}
