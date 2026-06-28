@@ -12,6 +12,22 @@ const getStatus = (value) => {
   return { label: 'High', className: 'status-high' };
 };
 
+const getAqiStatus = (aqi) => {
+  if (aqi <= 50) return { label: 'Good', color: '#10b981' };
+  if (aqi <= 100) return { label: 'Moderate', color: '#f59e0b' };
+  if (aqi <= 150) return { label: 'Unhealthy (Sens.)', color: '#f97316' };
+  if (aqi <= 200) return { label: 'Unhealthy', color: '#ef4444' };
+  if (aqi <= 300) return { label: 'Very Unhealthy', color: '#8b5cf6' };
+  return { label: 'Hazardous', color: '#9f1239' };
+};
+
+const getWindStatus = (speed) => {
+  if (speed <= 11) return { label: 'Light', color: '#10b981' };
+  if (speed <= 28) return { label: 'Moderate', color: '#f59e0b' };
+  if (speed <= 38) return { label: 'Fresh', color: '#f97316' };
+  return { label: 'Strong', color: '#ef4444' };
+};
+
 export default async function Home() {
   const data = await fetchPollenData();
 
@@ -47,14 +63,32 @@ export default async function Home() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase' }}>Air Quality (AQI)</h3>
-            <div style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0.5rem 0' }}>{data.current.aqi}</div>
-          </div>
-          <div className="card" style={{ padding: '1rem', textAlign: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase' }}>Wind Speed</h3>
-            <div style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0.5rem 0' }}>{data.current.wind_speed}<span style={{fontSize: '1rem', fontWeight: 400}}>km/h</span></div>
-          </div>
+          {(() => {
+            const aqiStatus = getAqiStatus(data.current.aqi);
+            const windStatus = getWindStatus(data.current.wind_speed);
+            return (
+              <>
+                <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Air Quality (AQI)</h3>
+                  <div style={{ fontSize: '3rem', fontWeight: 800, margin: '0.5rem 0', lineHeight: 1 }}>{data.current.aqi}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: 600 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: aqiStatus.color }}></div>
+                    {aqiStatus.label}
+                  </div>
+                </div>
+                <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <h3 style={{ margin: 0, fontSize: '0.875rem', color: 'var(--axis-color)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Wind Speed</h3>
+                  <div style={{ fontSize: '3rem', fontWeight: 800, margin: '0.5rem 0', lineHeight: 1 }}>
+                    {data.current.wind_speed}<span style={{fontSize: '1.25rem', fontWeight: 500, color: 'var(--axis-color)', marginLeft: '0.25rem'}}>km/h</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: 600 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: windStatus.color }}></div>
+                    {windStatus.label}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
 
       <h2 className="section-title">Today's Peak Levels</h2>
