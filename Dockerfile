@@ -1,4 +1,5 @@
 FROM oven/bun:alpine AS base
+LABEL org.opencontainers.image.source https://github.com/vikasyadawad/pollen-alerts
 
 # Install dependencies only when needed
 FROM base AS deps
