@@ -1,5 +1,5 @@
 'use client';
-import ActivityCalendar from 'react-activity-calendar';
+import { ActivityCalendar } from 'react-activity-calendar';
 
 export default function Heatmap({ symptoms }) {
   // Generate a full year of empty dates ending today
