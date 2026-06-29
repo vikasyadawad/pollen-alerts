@@ -17,16 +17,15 @@ export function register() {
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: 'pollen-alerts',
       }),
+      readers: [
+        new PeriodicExportingMetricReader({
+          exporter: new OTLPMetricExporter({
+            url: `${otlpEndpoint}/v1/metrics`,
+          }),
+          exportIntervalMillis: 5000,
+        })
+      ],
     });
-    
-    meterProvider.addMetricReader(
-      new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter({
-          url: `${otlpEndpoint}/v1/metrics`,
-        }),
-        exportIntervalMillis: 5000,
-      })
-    );
     
     metrics.setGlobalMeterProvider(meterProvider);
   }
