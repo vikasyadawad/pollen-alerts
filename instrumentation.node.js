@@ -1,6 +1,7 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
@@ -16,7 +17,7 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: `${otlpEndpoint}/v1/traces`,
   }),
-  metricReader: new require('@opentelemetry/sdk-metrics').PeriodicExportingMetricReader({
+  metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
       url: `${otlpEndpoint}/v1/metrics`,
     }),
