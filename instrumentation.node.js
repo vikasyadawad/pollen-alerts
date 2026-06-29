@@ -4,6 +4,7 @@ import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 // Alloy / OTel Collector HTTP endpoint.
 // In Docker Compose, this would point to the alloy container, e.g., 'http://alloy:4318'
@@ -22,6 +23,7 @@ const sdk = new NodeSDK({
       url: `${otlpEndpoint}/v1/metrics`,
     }),
   }),
+  instrumentations: [getNodeAutoInstrumentations()],
 });
 
 sdk.start();
