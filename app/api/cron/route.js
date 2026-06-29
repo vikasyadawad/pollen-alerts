@@ -22,6 +22,9 @@ const getStatus = (value) => {
 };
 
 export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const sendAlert = searchParams.get('sendAlert') === 'true';
+
   // Authorization check could be added here for Vercel Cron
   // e.g., if (request.headers.get('Authorization') !== `Bearer ${process.env.CRON_SECRET}`) ...
 
@@ -45,7 +48,13 @@ export async function GET(request) {
     pollenGauge.record(p.value, { pollen_type: p.name.toLowerCase() });
   });
 
-  // 4. "Smart" Alerting (Less Spam)
+  // 4. Check if we should send a Telegram Alert
+  if (!sendAlert) {
+    console.log('Metrics recorded. Skipping Telegram alert (sendAlert is not true).');
+    return NextResponse.json({ success: true, message: 'Metrics updated. Alert skipped.' });
+  }
+
+  // 5. "Smart" Alerting (Less Spam)
   // Check if any level is Medium or High
   const maxCurrentLevel = Math.max(...currentLevels.map(p => p.value));
   if (maxCurrentLevel < 2) {
