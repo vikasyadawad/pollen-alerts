@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
 import { fetchPollenData } from '@/lib/open-meteo';
+import { metrics } from '@opentelemetry/api';
+
+const meter = metrics.getMeter('pollen-alerts');
+const pollenGauge = meter.createGauge('pollen_level_grains', {
+  description: 'Current pollen level in grains/m³',
+});
 
 const TIPS = [
   "Keep windows closed during peak pollen hours (usually mid-morning and early evening).",
@@ -33,6 +39,11 @@ export async function GET(request) {
     { name: 'Olive', value: data.current.olive_pollen },
     { name: 'Ragweed', value: data.current.ragweed_pollen },
   ];
+
+  // Report metrics to Grafana via OpenTelemetry
+  currentLevels.forEach(p => {
+    pollenGauge.record(p.value, { pollen_type: p.name.toLowerCase() });
+  });
 
   // 4. "Smart" Alerting (Less Spam)
   // Check if any level is Medium or High
