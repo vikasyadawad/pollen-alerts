@@ -1,17 +1,23 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function SymptomWidget({ todayDate, alreadyLogged }) {
   const [logged, setLogged] = useState(alreadyLogged);
 
+  const router = useRouter();
+
   const logSymptom = async (score) => {
     setLogged(true);
     try {
-      await fetch('/api/symptoms', {
+      const res = await fetch('/api/symptoms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date: todayDate, score })
       });
+      if (res.ok) {
+        router.refresh(); // Tell Next.js to re-fetch Server Components (Heatmap)
+      }
     } catch(e) {
       console.error(e);
     }
