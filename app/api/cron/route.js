@@ -1,25 +1,13 @@
 import { NextResponse } from 'next/server';
 import { fetchPollenData } from '@/lib/open-meteo';
+import { getSymptoms } from '@/lib/db';
+import { generatePollenAlertMessage, buildFallbackMessage } from '@/lib/cerebras';
 import { metrics } from '@opentelemetry/api';
 
 const meter = metrics.getMeter('pollen-alerts');
 const pollenGauge = meter.createGauge('pollen_level_grains', {
   description: 'Current pollen level in grains/m³',
 });
-
-const TIPS = [
-  "Keep windows closed during peak pollen hours (usually mid-morning and early evening).",
-  "Consider taking your antihistamines before you head outside.",
-  "Wear sunglasses outdoors to protect your eyes from pollen.",
-  "Shower before bed to wash pollen out of your hair.",
-  "Dry your laundry inside today, not on the line.",
-];
-
-const getStatus = (value) => {
-  if (value < 2) return { label: 'Low', emoji: '🟢' };
-  if (value < 10) return { label: 'Medium', emoji: '🟡' };
-  return { label: 'High', emoji: '🔴' };
-};
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -63,44 +51,18 @@ export async function GET(request) {
     return NextResponse.json({ success: true, message: 'Skipped alert due to low pollen levels.' });
   }
 
-  let message = '🌿 *Daily Pollen Update (Berlin 10315)* 🌿\n\n';
-
-  // Sort to show highest first
-  currentLevels.sort((a, b) => b.value - a.value);
-
-  // 2. Add Visual Status Indicators
-  message += '*Today\'s Peak Levels:*\n';
-  currentLevels.forEach(p => {
-    const status = getStatus(p.value);
-    message += `${status.emoji} ${p.name}: ${p.value} (${status.label})\n`;
-  });
-
-  // 1. Include a "Tomorrow" Forecast
-  const tomorrow = data.forecast[0];
-  const tomorrowLevels = [
-    { name: 'Alder', value: tomorrow.alder_pollen },
-    { name: 'Birch', value: tomorrow.birch_pollen },
-    { name: 'Grass', value: tomorrow.grass_pollen },
-    { name: 'Mugwort', value: tomorrow.mugwort_pollen },
-    { name: 'Olive', value: tomorrow.olive_pollen },
-    { name: 'Ragweed', value: tomorrow.ragweed_pollen },
-  ];
-  tomorrowLevels.sort((a, b) => b.value - a.value);
-  const tomorrowWorst = tomorrowLevels[0];
-  const tomorrowStatus = getStatus(tomorrowWorst.value);
-  
-  message += '\n🔮 *Tomorrow\'s Forecast:*\n';
-  message += `The highest offender will be ${tomorrowWorst.name} at ${tomorrowWorst.value} grains/m³ ${tomorrowStatus.emoji}\n`;
-
-  // 5. Actionable Tips
-  if (maxCurrentLevel >= 10) {
-    const randomTip = TIPS[Math.floor(Math.random() * TIPS.length)];
-    message += `\n💡 *Tip of the Day:*\n_${randomTip}_\n`;
+  // Generate message via AI (Cerebras gpt-oss-120b) with rich recommendations.
+  // Falls back to the original static format on any error.
+  let message;
+  try {
+    const recentSymptoms = getSymptoms();
+    const aiText = await generatePollenAlertMessage(data, recentSymptoms);
+    const appUrl = 'https://pollen.humboldt-peacock.ts.net';
+    message = aiText.trim() + `\n\n📊 [View Full Charts & Forecast](${appUrl})`;
+  } catch (err) {
+    console.error('AI message generation failed, using fallback:', err.message);
+    message = buildFallbackMessage(data);
   }
-
-  // 3. Link to Your Dashboard
-  const appUrl = 'https://pollen.humboldt-peacock.ts.net';
-  message += `\n📊 [View Full Charts & Forecast](${appUrl})`;
 
   // Send to Telegram
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
